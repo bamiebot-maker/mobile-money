@@ -35,6 +35,66 @@ export enum TransactionStatus {
   Expired = "expired",
 }
 
+export const ALLOWED_STATUS_TRANSITIONS: Record<
+  TransactionStatus,
+  TransactionStatus[]
+> = {
+  [TransactionStatus.Pending]: [
+    TransactionStatus.Pending,
+    TransactionStatus.Processing,
+    TransactionStatus.Completed,
+    TransactionStatus.Failed,
+    TransactionStatus.Cancelled,
+    TransactionStatus.Review,
+    TransactionStatus.Expired,
+  ],
+  [TransactionStatus.Processing]: [
+    TransactionStatus.Processing,
+    TransactionStatus.Completed,
+    TransactionStatus.Failed,
+    TransactionStatus.Cancelled,
+    TransactionStatus.Review,
+    TransactionStatus.Pending,
+    TransactionStatus.Expired,
+  ],
+  [TransactionStatus.Review]: [
+    TransactionStatus.Review,
+    TransactionStatus.Processing,
+    TransactionStatus.Completed,
+    TransactionStatus.Failed,
+    TransactionStatus.Cancelled,
+  ],
+  [TransactionStatus.Completed]: [
+    TransactionStatus.Completed,
+    TransactionStatus.Dispute,
+    TransactionStatus.Reversed,
+    TransactionStatus.ClawedBack,
+  ],
+  [TransactionStatus.Failed]: [
+    TransactionStatus.Failed,
+    TransactionStatus.Review,
+  ],
+  [TransactionStatus.Cancelled]: [
+    TransactionStatus.Cancelled,
+  ],
+  [TransactionStatus.Dispute]: [
+    TransactionStatus.Dispute,
+    TransactionStatus.Completed,
+    TransactionStatus.Reversed,
+    TransactionStatus.ClawedBack,
+    TransactionStatus.Failed,
+  ],
+  [TransactionStatus.Reversed]: [
+    TransactionStatus.Reversed,
+  ],
+  [TransactionStatus.ClawedBack]: [
+    TransactionStatus.ClawedBack,
+  ],
+  [TransactionStatus.Expired]: [
+    TransactionStatus.Expired,
+  ],
+};
+
 export interface Transaction {
   id: string;
   referenceNumber: string;
@@ -405,61 +465,6 @@ export class TransactionModel {
     const res = await queryRead<TransactionRow>(q, params);
     return mapTransactionRow(res.rows[0]);
   }
-
-export const ALLOWED_STATUS_TRANSITIONS: Record<
-  TransactionStatus,
-  TransactionStatus[]
-> = {
-  [TransactionStatus.Pending]: [
-    TransactionStatus.Pending,
-    TransactionStatus.Processing,
-    TransactionStatus.Completed,
-    TransactionStatus.Failed,
-    TransactionStatus.Cancelled,
-    TransactionStatus.Review,
-  ],
-  [TransactionStatus.Processing]: [
-    TransactionStatus.Processing,
-    TransactionStatus.Completed,
-    TransactionStatus.Failed,
-    TransactionStatus.Cancelled,
-    TransactionStatus.Review,
-    TransactionStatus.Pending,
-  ],
-  [TransactionStatus.Review]: [
-    TransactionStatus.Review,
-    TransactionStatus.Processing,
-    TransactionStatus.Completed,
-    TransactionStatus.Failed,
-    TransactionStatus.Cancelled,
-  ],
-  [TransactionStatus.Completed]: [
-    TransactionStatus.Completed,
-    TransactionStatus.Dispute,
-    TransactionStatus.Reversed,
-    TransactionStatus.ClawedBack,
-  ],
-  [TransactionStatus.Failed]: [
-    TransactionStatus.Failed,
-    TransactionStatus.Review,
-  ],
-  [TransactionStatus.Cancelled]: [
-    TransactionStatus.Cancelled,
-  ],
-  [TransactionStatus.Dispute]: [
-    TransactionStatus.Dispute,
-    TransactionStatus.Completed,
-    TransactionStatus.Reversed,
-    TransactionStatus.ClawedBack,
-    TransactionStatus.Failed,
-  ],
-  [TransactionStatus.Reversed]: [
-    TransactionStatus.Reversed,
-  ],
-  [TransactionStatus.ClawedBack]: [
-    TransactionStatus.ClawedBack,
-  ],
-};
 
   async updateStatus(
     id: string,
